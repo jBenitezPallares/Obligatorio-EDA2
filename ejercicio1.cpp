@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 #include <limits>
+#include <fstream>
+
 
 using namespace std;
 
@@ -22,10 +24,38 @@ struct RepresentacionAVL
   NodoAVL *raiz;
   int cantElementos;
   bool (*comparador)(NodoAVL*, NodoAVL*);
+  NodoAVL* maximo;
 
-  RepresentacionAVL(bool (*comparador) (NodoAVL*, NodoAVL*)): raiz(NULL), cantElementos(0), comparador(comparador){}
+  RepresentacionAVL(bool (*comparador) (NodoAVL*, NodoAVL*)): raiz(NULL), cantElementos(0), comparador(comparador), maximo(NULL){}
 };
 typedef RepresentacionAVL *AVL;
+
+AVL crear (bool (*comparador) (NodoAVL*, NodoAVL*)){
+    return new RepresentacionAVL(comparador);
+}
+
+bool compararId(NodoAVL* nuevo, NodoAVL* actual){
+    return nuevo->id < actual->id;
+}
+
+bool compararPuntaje(NodoAVL* nuevo, NodoAVL* actual){
+    if (nuevo->puntaje == actual->puntaje) return compararId (nuevo, actual);
+    else return nuevo->puntaje > actual->puntaje;
+}
+
+// Busca el nodo en el AVL utilizando recursion
+NodoAVL* findRecursivo (NodoAVL* a, int id){
+    if (!a) return NULL;
+    else{
+        if(a->id == id) return a;
+        else if(a-> id < id) return findRecursivo(a -> der, id);
+        else return findRecursivo(a->izq, id);
+    }
+}
+
+NodoAVL* FIND (AVL a, int id){
+    return findRecursivo(a ->raiz, id);
+}
 
 // inserta el nodo en el AVL utilizando recursion
 bool insertarAVLRec(NodoAVL *&pa, int id, int puntaje, string nombre, bool &varioAltura, bool (*comparador)(NodoAVL*, NodoAVL*))
@@ -132,21 +162,11 @@ void ADD(AVL a, int id, int puntaje, string nombre)
     if (insertado)
     {
         a->cantElementos++;
+        NodoAVL* nuevo = FIND(a, id);
+        if (!a->maximo || compararPuntaje(nuevo, a->maximo)) {
+            a->maximo = nuevo;
+        }
     }
-}
-
-// Busca el nodo en el AVL utilizando recursion
-NodoAVL* findRecursivo (NodoAVL* a, int id){
-    if (!a) return NULL;
-    else{
-        if(a->id == id) return a;
-        else if(a-> id < id) return findRecursivo(a -> der, id);
-        else return findRecursivo(a->izq, id);
-    }
-}
-
-NodoAVL* FIND (AVL a, int id){
-    return findRecursivo(a ->raiz, id);
 }
 
 // Devuelve cantidad de nodos con puntaje mayor o igual al especificado usando recursion
@@ -161,23 +181,48 @@ int RANK (AVL a, int puntos){
 }
 
 NodoAVL* TOP1 (AVL a){
-    return a->raiz;
+    return a->maximo;
 }
 
 int COUNT (AVL a){
     return a->cantElementos;
 }
 
-bool compararId(NodoAVL* nuevo, NodoAVL* actual){
-    return nuevo->id > actual->id;
-}
-
-bool compararPuntaje(NodoAVL* nuevo, NodoAVL* actual){
-    if (nuevo->puntaje == actual->puntaje) return compararId (nuevo, actual);
-    else return nuevo->puntaje > actual->puntaje;
-}
-
 int main()
 {
+    AVL ordenPuntos = crear (compararPuntaje);
+    AVL ordenId = crear (compararId);
+    int cantAcciones;
+    cin >> cantAcciones;
+    string accion;
+
+    for (int i = 0; i < cantAcciones; i++) {
+        cin >> accion;
+        if (accion == "ADD") {
+            int id;
+            int puntaje;
+            string nombre;
+            cin >> id >> nombre >> puntaje;
+            ADD(ordenId, id, puntaje, nombre);
+            ADD(ordenPuntos, id, puntaje, nombre);
+        } else if (accion == "FIND") {
+            int id; 
+            cin >> id;
+            NodoAVL* nodo = FIND(ordenId, id);
+            if (nodo) cout << nodo->nombre << " " << nodo->puntaje << endl;
+            else cout << "jugador_no_encontrado" << endl;
+        } else if (accion == "TOP1") {
+            NodoAVL* nodo = TOP1(ordenPuntos);
+            if (nodo) cout << nodo->nombre << " " << nodo->puntaje << endl;
+            else cout << "sin_jugadores" << endl;
+        } else if (accion == "COUNT") {
+            cout << COUNT(ordenPuntos) << endl;
+        } else if (accion == "RANK") {
+            int puntos; 
+            cin >> puntos;
+            cout << RANK(ordenPuntos, puntos) << endl;
+        }
+    }
+
     return 0;
 }
