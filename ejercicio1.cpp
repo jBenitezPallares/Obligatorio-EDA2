@@ -149,6 +149,17 @@ NodoAVL* FIND (AVL a, int id){
     return findRecursivo(a ->raiz, id);
 }
 
+// Devuelve cantidad de nodos con puntaje mayor o igual al especificado usando recursion
+int rankRecursivo(NodoAVL* a, int puntos) {
+    if (!a) return 0;
+    if (a->puntaje >= puntos) return 1 + rankRecursivo(a->izq, puntos) + rankRecursivo(a->der, puntos);
+    else return rankRecursivo(a->der, puntos);
+}
+
+int RANK (AVL a, int puntos){
+    return rankRecursivo (a ->raiz, puntos);
+}
+
 NodoAVL* TOP1 (AVL a){
     return a->raiz;
 }
