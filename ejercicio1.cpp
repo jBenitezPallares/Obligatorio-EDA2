@@ -31,6 +31,10 @@ NodoAVL* top1 (AVL a){
     return a->raiz;
 }
 
+int count (AVL a){
+    return a->cantElementos;
+}
+
 bool compararId(NodoAVL* nuevo, NodoAVL* actual){
     return nuevo->id > actual->id;
 }
