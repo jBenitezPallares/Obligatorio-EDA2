@@ -27,7 +27,9 @@ struct RepresentacionAVL
 };
 typedef RepresentacionAVL *AVL;
 
-
+NodoAVL* top1 (AVL a){
+    return a->raiz;
+}
 
 bool compararId(NodoAVL* nuevo, NodoAVL* actual){
     return nuevo->id > actual->id;
