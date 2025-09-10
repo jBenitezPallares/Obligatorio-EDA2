@@ -135,6 +135,20 @@ void ADD(AVL a, int id, int puntaje, string nombre)
     }
 }
 
+// Busca el nodo en el AVL utilizando recursion
+NodoAVL* findRecursivo (NodoAVL* a, int id){
+    if (!a) return NULL;
+    else{
+        if(a->id == id) return a;
+        else if(a-> id < id) return findRecursivo(a -> der, id);
+        else return findRecursivo(a->izq, id);
+    }
+}
+
+NodoAVL* FIND (AVL a, int id){
+    return findRecursivo(a ->raiz, id);
+}
+
 NodoAVL* TOP1 (AVL a){
     return a->raiz;
 }
