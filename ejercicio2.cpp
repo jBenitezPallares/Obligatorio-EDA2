@@ -6,6 +6,7 @@
 using namespace std;
 // Tabla de hash cerrada para los dominios y dentro de cada nodo de la tabla, otra tabla de hash cerrada para los paths.
 // Preguntar profe si se borran doms y el tope de paths
+// Preguntar funcion hash de strings;
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -26,7 +27,13 @@ int primoSupMinimo(int dato){
 }
 
 int fhashPrincipal (int tope, string clave) {
-    return 0;
+    int ret = 0;
+    int i = 0;
+    while (clave[i] != '\0'){
+        ret = (ret + int (clave[i])) * 37;
+        i++;
+    }
+    return ret % tope;
 }
 
 int fHashColisiones (int tope, int n, int i) {
