@@ -5,6 +5,7 @@
 
 using namespace std;
 // Tabla de hash cerrada para los dominios y dentro de cada nodo de la tabla, otra tabla de hash cerrada para los paths.
+// Preguntar profe si se borran doms y el tope de paths
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -24,6 +25,14 @@ int primoSupMinimo(int dato){
     return dato;
 }
 
+int fhashPrincipal (int tope, string clave) {
+    return 0;
+}
+
+int fHashColisiones (int tope, int n, int i) {
+    return (n + i * 2) % tope;
+}
+
 struct nodoPath{
     string path;
     int tiempo;
@@ -37,7 +46,7 @@ struct nodoDominio {
     int tope;
     nodoPath** tablaPath;
     int cantElementos;
-    //bool estaBorrado; preguntar profe si se borran doms
+    //bool estaBorrado; 
 
     nodoDominio (int topeInicial, string d){
         dominio = d;
@@ -47,7 +56,6 @@ struct nodoDominio {
         for (int i = 0; i < this -> tope; i++) tablaPath [i] = NULL;
         //estaBorrado = false;
     } 
-
 };
 
 struct representacionDominio{
