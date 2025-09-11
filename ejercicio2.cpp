@@ -30,7 +30,7 @@ int fhashPrincipal (int tope, string clave) {
     int ret = 0;
     int i = 0;
     while (clave[i] != '\0'){
-        ret = (ret + int (clave[i])) * 37;
+        ret = (ret + int (clave[i])) * 37; //Funcion de horner
         i++;
     }
     return ret % tope;
@@ -41,11 +41,12 @@ int fHashColisiones (int tope, int n, int i) {
 }
 
 struct nodoPath{
+    string titulo;
     string path;
     int tiempo;
     bool estaBorrado;
 
-    nodoPath (string path, int tiempo): path(path), tiempo(tiempo), estaBorrado(false){}
+    nodoPath (string path, string titulo,int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false){}
 };
 
 struct nodoDominio {
@@ -53,7 +54,7 @@ struct nodoDominio {
     int tope;
     nodoPath** tablaPath;
     int cantElementos;
-    //bool estaBorrado; 
+    bool estaBorrado; 
 
     nodoDominio (int topeInicial, string d){
         dominio = d;
@@ -61,7 +62,7 @@ struct nodoDominio {
         tope = primoSupMinimo (topeInicial *2);
         tablaPath = new nodoPath* [tope];
         for (int i = 0; i < this -> tope; i++) tablaPath [i] = NULL;
-        //estaBorrado = false;
+        estaBorrado = false;
     } 
 };
 
@@ -77,6 +78,13 @@ struct representacionDominio{
         for (int i = 0; i < this -> tope; i++) tablaDoms [i] = NULL;
     } 
 };
+
+typedef representacionDominio * Dominio;
+
+void PUT (string dom, string path, string titulo, string tiempo){
+    
+}
+
 
 int main()
 {
