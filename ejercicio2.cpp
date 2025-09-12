@@ -41,12 +41,12 @@ int fHashColisiones (int tope, int n, int i) {
 }
 
 struct nodoPath{
-    string titulo;
     string path;
+    string titulo;
     int tiempo;
     bool estaBorrado;
 
-    nodoPath (string path, string titulo,int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false){}
+    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false){}
 };
 
 struct nodoDominio {
@@ -66,12 +66,12 @@ struct nodoDominio {
     } 
 };
 
-struct representacionDominio{
+struct representacionTabla{
     int cantElementos;
     int tope;
     nodoDominio** tablaDoms;
 
-    representacionDominio (int topeInicial){
+    representacionTabla (int topeInicial){
         cantElementos = 0;
         tope = primoSupMinimo (topeInicial * 2);
         tablaDoms = new nodoDominio* [tope];
@@ -79,10 +79,38 @@ struct representacionDominio{
     } 
 };
 
-typedef representacionDominio * Dominio;
+typedef representacionTabla * Tabla;
 
-void PUT (string dom, string path, string titulo, string tiempo){
-    
+
+void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
+    int pos = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while (d -> tablaDoms [pos] && d -> tablaDoms [pos] -> dominio != dom){
+        pos = fHashColisiones (d ->tope, pos, i);
+        i++;
+    }
+
+    if (!d -> tablaDoms [pos]){
+        d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom);
+        d -> cantElementos++;
+    }
+
+    nodoDominio * domActual = d -> tablaDoms[pos];
+
+    int posPath = fhashPrincipal(domActual -> tope, path);
+    i = 1;
+    while (domActual ->tablaPath [posPath] && domActual -> tablaPath [posPath] ->path != path){
+        posPath = fHashColisiones(domActual -> tope, posPath,i);
+        i++;
+    }
+
+    if (!domActual -> tablaPath[posPath]){
+        domActual -> tablaPath [posPath] = new nodoPath(path, titulo, tiempo);
+        domActual -> cantElementos++;
+    }else{
+        domActual -> tablaPath[posPath] -> titulo = titulo;
+        domActual -> tablaPath[posPath] -> tiempo = tiempo;
+    }
 }
 
 
