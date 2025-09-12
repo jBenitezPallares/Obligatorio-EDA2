@@ -207,6 +207,8 @@ int COUNT_DOMAIN (Tabla d, string dom){
     else return 0;
 }
 
+
+
 int main()
 {
     // TODO
