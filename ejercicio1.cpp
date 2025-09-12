@@ -188,6 +188,16 @@ int COUNT (AVL a){
     return a->cantElementos;
 }
 
+string getNombre (NodoAVL* a){
+    if (a) return a -> nombre;
+    else return "";
+}
+
+int getPuntaje (NodoAVL* a){
+    if (a)return a -> puntaje;
+    else return -1;
+}
+
 int main()
 {
     AVL ordenPuntos = crear (compararPuntaje);
@@ -208,13 +218,13 @@ int main()
         } else if (accion == "FIND") {
             int id; 
             cin >> id;
-            NodoAVL* nodo = FIND(ordenId, id);
-            if (nodo) cout << nodo->nombre << " " << nodo->puntaje << endl;
-            else cout << "jugador_no_encontrado" << endl;
+            int puntos = getPuntaje (FIND(ordenId, id));
+            if (puntos == -1) cout << "jugador_no_encontrado" << endl;
+            else cout << getNombre(FIND(ordenId, id)) << " " << puntos << endl;
         } else if (accion == "TOP1") {
-            NodoAVL* nodo = TOP1(ordenPuntos);
-            if (nodo) cout << nodo->nombre << " " << nodo->puntaje << endl;
-            else cout << "sin_jugadores" << endl;
+            int puntos = getPuntaje (TOP1(ordenId));
+            if (puntos == -1) cout << "sin_jugadores" << endl;
+            else cout << getNombre(TOP1(ordenPuntos)) << " " << puntos << endl;
         } else if (accion == "COUNT") {
             cout << COUNT(ordenPuntos) << endl;
         } else if (accion == "RANK") {
