@@ -6,7 +6,7 @@
 using namespace std;
 // Tabla de hash cerrada para los dominios y dentro de cada nodo de la tabla, otra tabla de hash cerrada para los paths.
 // Preguntar profe si se borran doms y el tope de paths
-// Preguntar funcion hash de strings;
+// Preguntar profe precondicion put para usar bool estaborrado
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -113,6 +113,30 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     }
 }
 
+nodoPath* GET (Tabla d,string dom, string path){
+    int posDom = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while (d -> tablaDoms[posDom] && d -> tablaDoms [posDom] -> dominio != dom){
+        posDom = fHashColisiones (d -> tope, posDom,i);
+        i++;
+    }
+
+    if (!d -> tablaDoms[posDom]) return NULL;
+    
+    nodoDominio* domActual = d -> tablaDoms [posDom];
+
+    int posPath = fhashPrincipal(domActual -> tope, path);
+    i = 1;
+    while(domActual -> tablaPath[posPath] && 
+        (domActual -> tablaPath[posPath] -> path != path || domActual -> tablaPath[posPath] ->estaBorrado)){ 
+        posPath = fHashColisiones(domActual -> tope, posPath, i);
+        i++;
+    }
+
+    if (!domActual -> tablaPath[posPath]) return NULL;
+    
+    return domActual -> tablaPath[posPath];
+}
 
 int main()
 {
