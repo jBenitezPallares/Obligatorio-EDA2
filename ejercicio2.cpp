@@ -160,7 +160,10 @@ void REMOVE (Tabla &d, string dom, string path){
 
         nodoPath* pathActual = domActual ->tablaPath [posPath];
 
-        if (pathActual) pathActual->estaBorrado = true;
+        if (pathActual && !pathActual ->estaBorrado){
+            pathActual->estaBorrado = true;
+            domActual -> cantElementos--;
+        } 
     }
 }
 
@@ -188,6 +191,20 @@ bool CONTAINS (Tabla d, string dom, string path){
             return true;
         }else return false;
     }else return false;
+}
+
+int COUNT_DOMAIN (Tabla d, string dom){
+    int posDom = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while (d -> tablaDoms[posDom] && d -> tablaDoms[posDom] -> dominio != dom){
+        posDom = fHashColisiones(d -> tope, posDom, i);
+        i++;
+    }
+
+    nodoDominio* domActual = d -> tablaDoms[posDom];
+
+    if (domActual) return domActual -> cantElementos;
+    else return 0;
 }
 
 int main()
