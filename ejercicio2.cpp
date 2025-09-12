@@ -164,6 +164,32 @@ void REMOVE (Tabla &d, string dom, string path){
     }
 }
 
+bool CONTAINS (Tabla d, string dom, string path){
+    int posDom = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while (d -> tablaDoms[posDom] && d -> tablaDoms [posDom] ->dominio != dom){
+        posDom = fHashColisiones(d -> tope, posDom, i);
+        i++;
+    }
+
+    nodoDominio* domActual = d -> tablaDoms[posDom];
+    
+    if (domActual){
+        int posPath = fhashPrincipal (domActual -> tope, path);
+        i = 1;
+        while (domActual -> tablaPath[posPath] && domActual -> tablaPath[posPath] -> path != path){
+            posPath = fHashColisiones(domActual -> tope, posPath, i);
+            i++;
+        }
+
+        nodoPath* pathActual = domActual -> tablaPath [posPath];
+
+        if (pathActual && !pathActual -> estaBorrado){
+            return true;
+        }else return false;
+    }else return false;
+}
+
 int main()
 {
     // TODO
