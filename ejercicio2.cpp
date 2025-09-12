@@ -54,7 +54,6 @@ struct nodoDominio {
     int tope;
     nodoPath** tablaPath;
     int cantElementos;
-    bool estaBorrado; 
 
     nodoDominio (int topeInicial, string d){
         dominio = d;
@@ -62,7 +61,6 @@ struct nodoDominio {
         tope = primoSupMinimo (topeInicial *2);
         tablaPath = new nodoPath* [tope];
         for (int i = 0; i < this -> tope; i++) tablaPath [i] = NULL;
-        estaBorrado = false;
     } 
 };
 
@@ -99,15 +97,19 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
 
     int posPath = fhashPrincipal(domActual -> tope, path);
     i = 1;
+    int primeroBorrado = -1;
     while (domActual ->tablaPath [posPath] && domActual -> tablaPath [posPath] ->path != path){
+        if (domActual -> tablaPath[posPath] ->estaBorrado && primeroBorrado == -1) primeroBorrado = posPath;
         posPath = fHashColisiones(domActual -> tope, posPath,i);
         i++;
     }
 
     if (!domActual -> tablaPath[posPath]){
+        if (primeroBorrado == -1) posPath = primeroBorrado;
         domActual -> tablaPath [posPath] = new nodoPath(path, titulo, tiempo);
         domActual -> cantElementos++;
     }else{
+        if (domActual -> tablaPath[posPath] -> estaBorrado) domActual -> tablaPath[posPath] -> estaBorrado = false;
         domActual -> tablaPath[posPath] -> titulo = titulo;
         domActual -> tablaPath[posPath] -> tiempo = tiempo;
     }
@@ -136,6 +138,30 @@ nodoPath* GET (Tabla d,string dom, string path){
     if (!domActual -> tablaPath[posPath]) return NULL;
     
     return domActual -> tablaPath[posPath];
+}
+
+void REMOVE (Tabla &d, string dom, string path){
+    int posDom = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while (d -> tablaDoms [posDom] && d -> tablaDoms [posDom] ->dominio != dom){
+        posDom = fHashColisiones (d -> tope, posDom, i);
+        i++;
+    }
+
+    nodoDominio* domActual = d -> tablaDoms [posDom];
+
+    if (domActual){
+        int posPath = fhashPrincipal(domActual -> tope, path);
+        i = 1;
+        while (domActual ->tablaPath[posPath] && domActual -> tablaPath[posPath] ->path != path){
+            posPath = fHashColisiones(domActual -> tope, posPath, i);
+            i++;
+        }
+
+        nodoPath* pathActual = domActual ->tablaPath [posPath];
+
+        if (pathActual) pathActual->estaBorrado = true;
+    }
 }
 
 int main()
