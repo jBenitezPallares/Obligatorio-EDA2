@@ -4,11 +4,7 @@
 #include <limits>
 
 using namespace std;
-// Tabla de hash cerrada para los dominios y dentro de cada nodo de la tabla, otra tabla de hash cerrada para los paths.
 // Preguntar profe si se borran doms y el tope de paths
-// Preguntar profe precondicion put para usar bool estaborrado
-//Preguntar orden countdomain
-// cumplir orden listdomain
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -278,7 +274,7 @@ void listarRec (nodoPath* p){
     }else cout << endl;
 
 }
-void listDomain (Tabla d, string dom){
+void LIST_DOMAIN (Tabla d, string dom){
     int posDom = fhashPrincipal (d -> tope, dom);
     int i = 1;
     while(d -> tablaDoms[posDom] && d -> tablaDoms[posDom] -> dominio != dom){
@@ -338,7 +334,13 @@ void CLEAR (Tabla &d){
     d->tope = 0;
 }
 
+string getTitulo(nodoPath* n){
+    return n ->titulo;
+}
 
+int getTiempo (nodoPath* n){
+    return n -> tiempo;
+}
 
 int main()
 {
@@ -349,13 +351,50 @@ int main()
 
     for (int i = 0; i < cantAcciones; i++){
         cin >> accion;
-        if (accion == "PUT"){
+        if (accion == "PUT") {
             string dom, path, titulo;
             int tiempo;
-            cin >> dom, path, titulo, tiempo;
-            PUT (datos, dom, path, titulo, tiempo);
-        }else if (accion == "GET"){
-            
+            cin >> dom >> path >> titulo >> tiempo;
+            PUT(datos, dom, path, titulo, tiempo);
+        }
+        else if (accion == "GET") {
+            string dom, path;
+            cin >> dom >> path;
+            nodoPath* nodo = GET(datos, dom, path);
+            if (nodo) cout << getTitulo(nodo) << " " << getTiempo(nodo) << endl;
+            else cout << "recurso_no_encontrado" << endl;
+        }
+        else if (accion == "REMOVE") {
+            string dom, path;
+            cin >> dom >> path;
+            REMOVE(datos, dom, path);
+        }
+        else if (accion == "CONTAINS") {
+            string dom, path;
+            cin >> dom >> path;
+            if (CONTAINS(datos, dom, path)) cout << "true" << endl;
+            else cout << "false" << endl;
+        }
+        else if (accion == "COUNT_DOMAIN") {
+            string dom;
+            cin >> dom;
+            cout << COUNT_DOMAIN(datos, dom) << endl;
+        }
+        else if (accion == "LIST_DOMAIN") {
+            string dom;
+            cin >> dom;
+            LIST_DOMAIN(datos, dom);
+        }
+        else if (accion == "CLEAR_DOMAIN") {
+            string dom;
+            cin >> dom;
+            CLEAR_DOMAIN(datos, dom);
+        }
+        else if (accion == "SIZE") {
+            cout << SIZE(datos) << endl;
+        }
+        else { 
+            CLEAR(datos);
         }
     }
     return 0;
