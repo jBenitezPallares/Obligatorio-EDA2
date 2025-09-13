@@ -238,7 +238,7 @@ void CLEAR_DOMAIN(Tabla &d, string dom){
 }
 
 int SIZE (Tabla d){
-    return 0;
+    return d -> cantElementos;
 }
 
 void CLEAR (Tabla &d){
