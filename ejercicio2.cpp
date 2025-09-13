@@ -8,6 +8,7 @@ using namespace std;
 // Preguntar profe si se borran doms y el tope de paths
 // Preguntar profe precondicion put para usar bool estaborrado
 //Preguntar orden countdomain
+// cumplir orden listdomain
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -46,8 +47,10 @@ struct nodoPath{
     string titulo;
     int tiempo;
     bool estaBorrado;
+    nodoPath* sig;
+    nodoPath* ant;
 
-    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false){}
+    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false), sig(NULL), ant(NULL){}
 };
 
 struct nodoDominio {
@@ -55,13 +58,15 @@ struct nodoDominio {
     int tope;
     nodoPath** tablaPath;
     int cantElementos;
+    nodoPath* primero;
 
-    nodoDominio (int topeInicial, string d){
+    nodoDominio (int topeInicial, string d, nodoPath* primer){
         dominio = d;
         cantElementos = 0;
         tope = primoSupMinimo (topeInicial *2);
         tablaPath = new nodoPath* [tope];
         for (int i = 0; i < this -> tope; i++) tablaPath [i] = NULL;
+        primero = primer;
     } 
 };
 
@@ -90,8 +95,11 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     }
 
     if (!d -> tablaDoms [pos]){
-        d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom);
+        nodoPath* nuevo = new nodoPath (path, titulo, tiempo);
+        d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom, nuevo);
         d -> cantElementos++;
+        d -> tablaDoms [pos] ->cantElementos++;
+        return;
     }
 
     nodoDominio * domActual = d -> tablaDoms[pos];
@@ -105,14 +113,53 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
         i++;
     }
 
-    if (!domActual -> tablaPath[posPath]){
-        if (primeroBorrado != -1) posPath = primeroBorrado;
-        domActual -> tablaPath [posPath] = new nodoPath(path, titulo, tiempo);
-        domActual -> cantElementos++;
+    nodoPath* insertar = NULL;
+
+    if(!domActual->tablaPath[posPath]){
+        if(primeroBorrado != -1) posPath = primeroBorrado;
+        insertar = new nodoPath(path, titulo, tiempo);
+        domActual->tablaPath[posPath] = insertar;
+        domActual->cantElementos++;
+    } else {
+        insertar = domActual->tablaPath[posPath];
+        if(insertar->estaBorrado) {
+            insertar->estaBorrado = false;
+            domActual ->cantElementos++;
+        }
+        insertar->titulo = titulo;
+        insertar->tiempo = tiempo;
+    }
+
+    if(!domActual->primero){
+        domActual->primero = insertar;
+        insertar->sig = NULL;
+        insertar->ant = NULL;
+        return;
     }else{
-        if (domActual -> tablaPath[posPath] -> estaBorrado) domActual -> tablaPath[posPath] -> estaBorrado = false;
-        domActual -> tablaPath[posPath] -> titulo = titulo;
-        domActual -> tablaPath[posPath] -> tiempo = tiempo;
+        nodoPath* auxAnt = insertar->ant;
+        nodoPath* auxSig = insertar->sig;
+        if(auxAnt) auxAnt->sig = auxSig;
+        if(auxSig) auxSig->ant = auxAnt;
+        if(domActual->primero == insertar) domActual->primero = auxSig;
+        insertar->ant = NULL;
+        insertar->sig = NULL;
+
+        nodoPath* actual = domActual->primero;
+        if(!actual || tiempo > actual->tiempo){
+            insertar->sig = actual;
+            if(actual) actual->ant = insertar;
+            insertar->ant = NULL;
+            domActual->primero = insertar;
+        } else {
+            while(actual->sig && actual->sig->tiempo > tiempo) actual = actual->sig;
+            insertar->sig = actual->sig;
+            if(actual->sig) {
+                nodoPath* aux = insertar->sig;
+                aux ->ant = insertar;
+            }
+            actual->sig = insertar;
+            insertar->ant = actual;
+        }
     }
 }
 
@@ -164,6 +211,13 @@ void REMOVE (Tabla &d, string dom, string path){
         if (pathActual && !pathActual ->estaBorrado){
             pathActual->estaBorrado = true;
             domActual -> cantElementos--;
+            nodoPath* auxAnt = pathActual->ant;
+            nodoPath* auxSig = pathActual->sig;
+            if (auxAnt) auxAnt->sig = auxSig;
+            if (auxSig) auxSig->ant = auxAnt;
+            if (domActual->primero == pathActual) domActual->primero = auxSig;
+            pathActual->ant = NULL;
+            pathActual->sig = NULL;
         } 
     }
 }
@@ -208,6 +262,14 @@ int COUNT_DOMAIN (Tabla d, string dom){
     else return 0;
 }
 
+// Imprime los elementos de la lista por recursion.
+void listarRec (nodoPath* p){
+    if (p) {
+        if (!p ->estaBorrado) cout << p -> path << " ";
+        listarRec (p ->sig);
+    }else cout << endl;
+
+}
 void listDomain (Tabla d, string dom){
     int posDom = fhashPrincipal (d -> tope, dom);
     int i = 1;
@@ -220,9 +282,10 @@ void listDomain (Tabla d, string dom){
     if (!domActual || domActual -> cantElementos == 0){
         cout << "sin_informacion" << endl;
     }else{
-        
+        listarRec(domActual -> primero);
     }
 }
+
 
 
 int main()

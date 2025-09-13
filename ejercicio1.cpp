@@ -45,8 +45,7 @@ bool compararPuntaje(NodoAVL* nuevo, NodoAVL* actual){
 
 // Busca el nodo en el AVL utilizando recursion
 NodoAVL* findRecursivo (NodoAVL* a, int id){
-    if (!a) return NULL;
-    else{
+    if (a) {
         if(a->id == id) return a;
         else if(a-> id < id) return findRecursivo(a -> der, id);
         else return findRecursivo(a->izq, id);
@@ -180,8 +179,9 @@ int RANK (AVL a, int puntos){
     return rankRecursivo (a ->raiz, puntos);
 }
 
-NodoAVL* TOP1 (AVL a){
-    return a->maximo;
+void TOP1 (AVL a){
+    if (a) cout << a -> maximo ->nombre << " " << a -> maximo -> puntaje << endl;
+    else cout << "sin_jugadores" << endl;
 }
 
 int COUNT (AVL a){
@@ -218,13 +218,11 @@ int main()
         } else if (accion == "FIND") {
             int id; 
             cin >> id;
-            int puntos = getPuntaje (FIND(ordenId, id));
-            if (puntos == -1) cout << "jugador_no_encontrado" << endl;
-            else cout << getNombre(FIND(ordenId, id)) << " " << puntos << endl;
+            NodoAVL* nodo = FIND(ordenId, id); // preguntar
+            if(!nodo) cout << "jugador_no_encontrado" << endl;
+            else cout << getNombre(nodo) << " " << getPuntaje(nodo) << endl;
         } else if (accion == "TOP1") {
-            int puntos = getPuntaje (TOP1(ordenId));
-            if (puntos == -1) cout << "sin_jugadores" << endl;
-            else cout << getNombre(TOP1(ordenPuntos)) << " " << puntos << endl;
+            TOP1(ordenPuntos);
         } else if (accion == "COUNT") {
             cout << COUNT(ordenPuntos) << endl;
         } else if (accion == "RANK") {
