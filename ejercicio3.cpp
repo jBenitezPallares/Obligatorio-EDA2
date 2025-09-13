@@ -147,7 +147,19 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
 }
 
 nodoPath* GET (Tabla d,string dom, string path){
-    return NULL;
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d ->tablaDoms[pos];
+    while (actual && actual -> dominio != dom) actual = actual ->sig;
+
+    if (!actual) return NULL;
+    else {
+        pos = fhashPrincipal (actual -> tope, path);
+        nodoPath* pathActual = actual -> tablaPath[pos];
+        while (pathActual && pathActual ->path != path) pathActual = pathActual ->sig;
+
+        if (!pathActual) return NULL;
+        else return pathActual;
+    }
 }
 
 void REMOVE (Tabla &d, string dom, string path){
