@@ -120,11 +120,13 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
         insertar = new nodoPath(path, titulo, tiempo);
         domActual->tablaPath[posPath] = insertar;
         domActual->cantElementos++;
+        d -> cantElementos++;
     } else {
         insertar = domActual->tablaPath[posPath];
         if(insertar->estaBorrado) {
             insertar->estaBorrado = false;
             domActual ->cantElementos++;
+            d->cantElementos++;
         }
         insertar->titulo = titulo;
         insertar->tiempo = tiempo;
@@ -211,6 +213,7 @@ void REMOVE (Tabla &d, string dom, string path){
         if (pathActual && !pathActual ->estaBorrado){
             pathActual->estaBorrado = true;
             domActual -> cantElementos--;
+            d ->cantElementos--;
             nodoPath* auxAnt = pathActual->ant;
             nodoPath* auxSig = pathActual->sig;
             if (auxAnt) auxAnt->sig = auxSig;
@@ -284,6 +287,14 @@ void listDomain (Tabla d, string dom){
     }else{
         listarRec(domActual -> primero);
     }
+}
+
+void CLEAR_DOMAIN(Tabla d){
+    
+}
+
+int SIZE (Tabla d){
+    return d ->cantElementos;
 }
 
 
