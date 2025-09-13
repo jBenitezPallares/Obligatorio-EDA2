@@ -37,12 +37,11 @@ struct nodoPath{
     string path;
     string titulo;
     int tiempo;
-    bool estaBorrado;
     nodoPath* sig;
     nodoPath* ant;
     nodoPath* sigPath;
 
-    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), estaBorrado(false), sig(NULL), ant(NULL), sigPath(NULL){}
+    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), sig(NULL), ant(NULL), sigPath(NULL){}
 };
 
 struct nodoDominio {
@@ -84,7 +83,67 @@ Tabla crear(int tope){
 }
 
 void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
-    
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d ->tablaDoms[pos];
+    while (actual && actual ->dominio != dom) actual = actual -> sig;
+    if(!actual){
+        nodoDominio* nuevoDom = new nodoDominio(d->tope, dom);
+        nuevoDom->sig = d->tablaDoms[pos];
+        d->tablaDoms[pos] = nuevoDom;     
+        actual = nuevoDom;
+        actual ->primero = new nodoPath (path, titulo, tiempo); 
+        actual ->tablaPath[pos] = actual -> primero; 
+        d -> cantElementos++;
+        actual->cantElementos++;  
+        return;    
+    }
+
+    pos = fhashPrincipal(actual -> tope, path);
+    nodoPath* pathActual = actual ->tablaPath[pos];
+    while (pathActual && pathActual ->path != path) pathActual = pathActual -> sig;
+    if (!pathActual){
+        nodoPath* nuevoPath = new nodoPath(path, titulo, tiempo);
+        nuevoPath -> sig = actual -> tablaPath[pos];
+        actual ->tablaPath[pos] = nuevoPath;
+        d -> cantElementos++;
+        actual -> cantElementos++;
+    }else{
+        pathActual ->titulo = titulo;
+        pathActual -> tiempo = tiempo;
+    }
+
+    if (!actual -> primero){
+        actual -> primero = pathActual;
+        pathActual ->ant = NULL;
+        pathActual-> sig = NULL;
+    }else {
+        nodoPath* auxAnt = pathActual -> ant;
+        nodoPath* auxSig = pathActual -> sig;
+        if(auxAnt) auxAnt -> sig = auxSig;
+        if(auxSig) auxSig -> ant = auxAnt;
+        pathActual -> sig = NULL;
+        pathActual -> ant = NULL;
+        if (actual -> primero -> tiempo <= tiempo) {
+            pathActual -> sig = actual -> primero;
+            actual -> primero -> ant = pathActual;
+            actual -> primero = pathActual;
+        }else{
+            nodoPath* iterador = actual -> primero;
+            while(iterador -> sig && iterador ->sig -> tiempo > tiempo) iterador = iterador -> sig;
+
+            if (!iterador -> sig){
+                iterador -> sig = pathActual;
+                pathActual -> ant = iterador;
+            }else{
+                nodoPath* aux = iterador->sig;
+                iterador->sig = pathActual;
+                pathActual->ant = iterador;
+                pathActual->sig = aux;
+                aux->ant = pathActual;
+            }
+        }
+         
+    }
 }
 
 nodoPath* GET (Tabla d,string dom, string path){

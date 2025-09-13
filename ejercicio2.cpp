@@ -97,9 +97,9 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     if (!d -> tablaDoms [pos]){
         nodoPath* nuevo = new nodoPath (path, titulo, tiempo);
         d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom);
-        d -> cantElementos++;
         int posPath = fhashPrincipal(d -> tablaDoms [pos] -> tope, path);
         d -> tablaDoms[pos] -> tablaPath[posPath] = nuevo;
+        d -> cantElementos++;
         d -> tablaDoms [pos] -> cantElementos++;
         d -> tablaDoms[pos] -> primero = nuevo;
         return;
