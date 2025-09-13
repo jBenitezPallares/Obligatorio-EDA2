@@ -7,6 +7,7 @@ using namespace std;
 // Tabla de hash cerrada para los dominios y dentro de cada nodo de la tabla, otra tabla de hash cerrada para los paths.
 // Preguntar profe si se borran doms y el tope de paths
 // Preguntar profe precondicion put para usar bool estaborrado
+//Preguntar orden countdomain
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -105,7 +106,7 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     }
 
     if (!domActual -> tablaPath[posPath]){
-        if (primeroBorrado == -1) posPath = primeroBorrado;
+        if (primeroBorrado != -1) posPath = primeroBorrado;
         domActual -> tablaPath [posPath] = new nodoPath(path, titulo, tiempo);
         domActual -> cantElementos++;
     }else{
@@ -193,7 +194,7 @@ bool CONTAINS (Tabla d, string dom, string path){
     }else return false;
 }
 
-int COUNT_DOMAIN (Tabla d, string dom){
+int COUNT_DOMAIN (Tabla d, string dom){ 
     int posDom = fhashPrincipal(d -> tope, dom);
     int i = 1;
     while (d -> tablaDoms[posDom] && d -> tablaDoms[posDom] -> dominio != dom){
@@ -207,6 +208,21 @@ int COUNT_DOMAIN (Tabla d, string dom){
     else return 0;
 }
 
+void listDomain (Tabla d, string dom){
+    int posDom = fhashPrincipal (d -> tope, dom);
+    int i = 1;
+    while(d -> tablaDoms[posDom] && d -> tablaDoms[posDom] -> dominio != dom){
+        posDom = fHashColisiones (d -> tope, posDom, i);
+        i++;
+    }
+
+    nodoDominio* domActual = d -> tablaDoms [posDom];
+    if (!domActual || domActual -> cantElementos == 0){
+        cout << "sin_informacion" << endl;
+    }else{
+        
+    }
+}
 
 
 int main()
