@@ -234,7 +234,23 @@ void LIST_DOMAIN (Tabla d, string dom){
 }
 
 void CLEAR_DOMAIN(Tabla &d, string dom){
-    
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d -> tablaDoms[pos];
+    while (actual && actual -> dominio != dom) actual = actual -> sig;
+
+    if (actual){
+        for (int i = 0; i < actual->tope; i++){
+            nodoPath* pathActual = actual->tablaPath[i];
+            while(pathActual){
+                nodoPath* aux = pathActual;
+                pathActual = pathActual->sigPath;  
+                delete aux;
+            }
+            actual->tablaPath[i] = NULL;
+        }
+        actual->primero = NULL;
+        actual->cantElementos = 0;
+    }
 }
 
 int SIZE (Tabla d){
