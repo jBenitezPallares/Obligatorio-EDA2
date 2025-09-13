@@ -194,11 +194,27 @@ void REMOVE (Tabla &d, string dom, string path){
 }
 
 bool CONTAINS (Tabla d, string dom, string path){
-    return false;
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d -> tablaDoms[pos];
+    while(actual && actual ->dominio != dom) actual = actual -> sig;
+
+    if (actual){
+        pos = fhashPrincipal(actual -> tope, path);
+        nodoPath* pathActual = actual ->tablaPath[pos];
+        while (pathActual && pathActual -> path != path) pathActual = pathActual -> sig;
+
+        if (pathActual) return true;
+        else return false;
+    }else return false;
 }
 
 int COUNT_DOMAIN (Tabla d, string dom){ 
-    return 0;
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d ->tablaDoms[pos];
+    while (actual && actual -> dominio != dom) actual = actual -> sig;
+
+    if (actual) return actual ->cantElementos;
+    else return 0;
 }
 
 // Imprime los elementos de la lista por recursion.
