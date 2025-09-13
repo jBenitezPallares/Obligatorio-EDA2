@@ -163,7 +163,34 @@ nodoPath* GET (Tabla d,string dom, string path){
 }
 
 void REMOVE (Tabla &d, string dom, string path){
-    
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d ->tablaDoms[pos];
+    while (actual && actual ->dominio != dom) actual = actual -> sig;
+
+    if (actual){
+        pos = fhashPrincipal(actual -> tope, path);
+        nodoPath* pathActual = actual -> tablaPath [pos];
+        nodoPath* anterior = NULL;
+
+        while (pathActual && pathActual ->path != path) {
+            anterior = pathActual;
+            pathActual = pathActual ->sig;
+        }
+
+        if (pathActual){
+            if (pathActual -> sig) pathActual -> sig -> ant = pathActual -> ant;
+            if (pathActual -> ant) pathActual -> ant -> sig = pathActual -> sig;
+            else actual -> primero = pathActual -> sig;
+            pathActual -> sig = NULL;
+            pathActual -> ant = NULL;
+            if(anterior) anterior -> sigPath = pathActual -> sigPath;
+            else actual ->tablaPath[pos] = pathActual -> sigPath;
+            pathActual-> sigPath = NULL;
+            delete pathActual;
+            d ->cantElementos--;
+            actual->cantElementos--;
+        }
+    }
 }
 
 bool CONTAINS (Tabla d, string dom, string path){
