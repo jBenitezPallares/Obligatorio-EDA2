@@ -219,10 +219,18 @@ int COUNT_DOMAIN (Tabla d, string dom){
 
 // Imprime los elementos de la lista por recursion.
 void listarRec (nodoPath* p){
-
+    if (p){
+        cout << p->path << " ";
+        listarRec (p ->sig);
+    }else cout << endl;
 }
 void LIST_DOMAIN (Tabla d, string dom){
-    
+    int pos = fhashPrincipal(d -> tope, dom);
+    nodoDominio* actual = d -> tablaDoms[pos];
+    while (actual && actual -> dominio != dom) actual = actual -> sig;
+
+    if (actual && actual -> cantElementos != 0) listarRec (actual ->primero);
+    else cout << "sin_informacion" << endl;
 }
 
 void CLEAR_DOMAIN(Tabla &d, string dom){
