@@ -5,6 +5,7 @@
 
 using namespace std;
 // Preguntar profe si se borran doms y el tope de paths
+//preguntar hashcolisiones
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
