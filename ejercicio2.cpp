@@ -60,13 +60,13 @@ struct nodoDominio {
     int cantElementos;
     nodoPath* primero;
 
-    nodoDominio (int topeInicial, string d, nodoPath* primer){
+    nodoDominio (int topeInicial, string d){
         dominio = d;
         cantElementos = 0;
         tope = primoSupMinimo (topeInicial *2);
         tablaPath = new nodoPath* [tope];
         for (int i = 0; i < this -> tope; i++) tablaPath [i] = NULL;
-        primero = primer;
+        primero = NULL;
     } 
 };
 
@@ -85,6 +85,9 @@ struct representacionTabla{
 
 typedef representacionTabla * Tabla;
 
+Tabla crear(int tope){
+    return new representacionTabla(tope);
+}
 
 void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     int pos = fhashPrincipal(d -> tope, dom);
@@ -96,9 +99,12 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
 
     if (!d -> tablaDoms [pos]){
         nodoPath* nuevo = new nodoPath (path, titulo, tiempo);
-        d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom, nuevo);
+        d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom);
         d -> cantElementos++;
-        d -> tablaDoms [pos] ->cantElementos++;
+        int posPath = fhashPrincipal(d -> tablaDoms [pos] -> tope, path);
+        d -> tablaDoms[pos] -> tablaPath[posPath] = nuevo;
+        d -> tablaDoms [pos] -> cantElementos++;
+        d -> tablaDoms[pos] -> primero = nuevo;
         return;
     }
 
@@ -136,7 +142,6 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
         domActual->primero = insertar;
         insertar->sig = NULL;
         insertar->ant = NULL;
-        return;
     }else{
         nodoPath* auxAnt = insertar->ant;
         nodoPath* auxSig = insertar->sig;
@@ -289,18 +294,69 @@ void listDomain (Tabla d, string dom){
     }
 }
 
-void CLEAR_DOMAIN(Tabla d){
-    
+void CLEAR_DOMAIN(Tabla &d, string dom){
+    int posDom = fhashPrincipal(d -> tope, dom);
+    int i = 1;
+    while(d ->tablaDoms[posDom] && d -> tablaDoms[posDom] ->dominio != dom){
+        posDom = fHashColisiones(d -> tope, posDom, i);
+        i++;
+    }
+
+    nodoDominio* domActual = d ->tablaDoms[posDom];
+
+    if (domActual){
+        nodoPath* actual = domActual-> primero;
+        while(actual){
+            nodoPath* aux = actual;
+            actual = actual ->sig;
+            delete aux;  
+        }
+
+        for (int i = 0; i < domActual->tope; i++) domActual->tablaPath[i] = NULL;
+        domActual->primero = NULL;
+        domActual->cantElementos = 0;
+    }
 }
 
 int SIZE (Tabla d){
     return d ->cantElementos;
 }
 
+void CLEAR (Tabla &d){
+    for (int i = 0; i < d->tope; i++) {
+        nodoDominio* actual = d->tablaDoms[i];
+        if (actual) {
+            CLEAR_DOMAIN(d, actual->dominio);
+            delete[] actual->tablaPath;   
+            delete actual;                
+            d->tablaDoms[i] = NULL;
+        }
+    }
+    delete[] d->tablaDoms;  
+    d->tablaDoms = NULL;
+    d->cantElementos = 0;
+    d->tope = 0;
+}
+
 
 
 int main()
 {
-    // TODO
+    int cantAcciones;
+    cin >> cantAcciones;
+    Tabla datos = crear(cantAcciones);
+    string accion;
+
+    for (int i = 0; i < cantAcciones; i++){
+        cin >> accion;
+        if (accion == "PUT"){
+            string dom, path, titulo;
+            int tiempo;
+            cin >> dom, path, titulo, tiempo;
+            PUT (datos, dom, path, titulo, tiempo);
+        }else if (accion == "GET"){
+            
+        }
+    }
     return 0;
 }
