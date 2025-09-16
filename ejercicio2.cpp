@@ -5,7 +5,8 @@
 
 using namespace std;
 // Preguntar profe si se borran doms y el tope de paths
-//preguntar hashcolisiones
+// preguntar hashcolisiones
+// Preguntar orden remove
 
 bool esPrimo(int num){
     if(num<=1 || num%2==0 && num!=2) return false;
@@ -95,7 +96,7 @@ void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
     }
 
     if (!d -> tablaDoms [pos]){
-        nodoPath* nuevo = new nodoPath (path, titulo, tiempo);
+        nodoPath* nuevo = new nodoPath(path, titulo, tiempo);
         d -> tablaDoms [pos] = new nodoDominio(d -> tope, dom);
         int posPath = fhashPrincipal(d -> tablaDoms [pos] -> tope, path);
         d -> tablaDoms[pos] -> tablaPath[posPath] = nuevo;
@@ -302,6 +303,7 @@ void CLEAR_DOMAIN(Tabla &d, string dom){
     nodoDominio* domActual = d ->tablaDoms[posDom];
 
     if (domActual){
+        d ->cantElementos = d ->cantElementos - domActual-> cantElementos;
         nodoPath* actual = domActual-> primero;
         while(actual){
             nodoPath* aux = actual;
@@ -309,6 +311,9 @@ void CLEAR_DOMAIN(Tabla &d, string dom){
             delete aux;  
         }
 
+        delete []domActual->tablaPath;
+
+        domActual->tablaPath = new nodoPath*[domActual->tope];
         for (int i = 0; i < domActual->tope; i++) domActual->tablaPath[i] = NULL;
         domActual->primero = NULL;
         domActual->cantElementos = 0;
