@@ -38,10 +38,9 @@ struct nodoPath{
     string titulo;
     int tiempo;
     nodoPath* sig;
-    nodoPath* ant;
     nodoPath* sigPath;
 
-    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), sig(NULL), ant(NULL), sigPath(NULL){}
+    nodoPath (string path, string titulo, int tiempo): path(path), titulo(titulo), tiempo(tiempo), sig(NULL), sigPath(NULL){}
 };
 
 struct nodoDominio {
@@ -83,66 +82,51 @@ Tabla crear(int tope){
 }
 
 void PUT (Tabla &d, string dom, string path, string titulo, int tiempo){
-    int pos = fhashPrincipal(d -> tope, dom);
-    nodoDominio* actual = d ->tablaDoms[pos];
-    while (actual && actual ->dominio != dom) actual = actual -> sig;
+    int posDom = fhashPrincipal(d->tope, dom);
+    nodoDominio* actual = d->tablaDoms[posDom];
+
+    while(actual && actual->dominio != dom) actual = actual->sig;
+
     if(!actual){
-        nodoDominio* nuevoDom = new nodoDominio(d->tope, dom);
-        nuevoDom->sig = d->tablaDoms[pos];
-        d->tablaDoms[pos] = nuevoDom;     
-        actual = nuevoDom;
-        actual ->primero = new nodoPath (path, titulo, tiempo); 
-        actual ->tablaPath[pos] = actual -> primero; 
-        d -> cantElementos++;
-        actual->cantElementos++;  
-        return;    
+        actual = new nodoDominio(d->tope, dom);
+        actual->sig = d->tablaDoms[posDom];
+        d->tablaDoms[posDom] = actual;
     }
 
-    pos = fhashPrincipal(actual -> tope, path);
-    nodoPath* pathActual = actual ->tablaPath[pos];
-    while (pathActual && pathActual ->path != path) pathActual = pathActual -> sig;
-    if (!pathActual){
-        nodoPath* nuevoPath = new nodoPath(path, titulo, tiempo);
-        nuevoPath -> sig = actual -> tablaPath[pos];
-        actual ->tablaPath[pos] = nuevoPath;
-        d -> cantElementos++;
-        actual -> cantElementos++;
-    }else{
-        pathActual ->titulo = titulo;
-        pathActual -> tiempo = tiempo;
-    }
+    int posPath = fhashPrincipal(actual->tope, path);
+    nodoPath* pathActual = actual->tablaPath[posPath];
 
-    if (!actual -> primero){
-        actual -> primero = pathActual;
-        pathActual ->ant = NULL;
-        pathActual-> sig = NULL;
-    }else {
-        nodoPath* auxAnt = pathActual -> ant;
-        nodoPath* auxSig = pathActual -> sig;
-        if(auxAnt) auxAnt -> sig = auxSig;
-        if(auxSig) auxSig -> ant = auxAnt;
-        pathActual -> sig = NULL;
-        pathActual -> ant = NULL;
-        if (actual -> primero -> tiempo <= tiempo) {
-            pathActual -> sig = actual -> primero;
-            actual -> primero -> ant = pathActual;
-            actual -> primero = pathActual;
-        }else{
-            nodoPath* iterador = actual -> primero;
-            while(iterador -> sig && iterador ->sig -> tiempo > tiempo) iterador = iterador -> sig;
+    while(pathActual && pathActual->path != path) pathActual = pathActual->sigPath;
 
-            if (!iterador -> sig){
-                iterador -> sig = pathActual;
-                pathActual -> ant = iterador;
-            }else{
-                nodoPath* aux = iterador->sig;
-                iterador->sig = pathActual;
-                pathActual->ant = iterador;
-                pathActual->sig = aux;
-                aux->ant = pathActual;
+    if(!pathActual){
+        pathActual = new nodoPath(path, titulo, tiempo);
+        pathActual->sigPath = actual->tablaPath[posPath];
+        actual->tablaPath[posPath] = pathActual;
+        d->cantElementos++;
+        actual->cantElementos++;
+    } else {
+        pathActual->titulo = titulo;
+        if(pathActual->tiempo != tiempo){
+            pathActual->tiempo = tiempo;
+
+            if(actual->primero == pathActual) actual->primero = pathActual->sig;
+            else {
+                nodoPath* iter = actual-> primero;
+                while(iter->sig && iter->sig != pathActual) iter = iter->sig;
+                if(iter->sig == pathActual) iter->sig = pathActual->sig;
+            }
+            pathActual->sig = NULL;
+
+            if(!actual->primero || tiempo > actual->primero->tiempo){
+                pathActual->sig = actual->primero;
+                actual->primero = pathActual;
+            } else {
+                nodoPath* iter = actual->primero;
+                while(iter->sig && iter->sig->tiempo > tiempo) iter = iter->sig;
+                pathActual->sig = iter->sig;
+                iter->sig = pathActual;
             }
         }
-         
     }
 }
 
@@ -163,34 +147,32 @@ nodoPath* GET (Tabla d,string dom, string path){
 }
 
 void REMOVE (Tabla &d, string dom, string path){
-    int pos = fhashPrincipal(d -> tope, dom);
-    nodoDominio* actual = d ->tablaDoms[pos];
-    while (actual && actual ->dominio != dom) actual = actual -> sig;
+    int posDom = fhashPrincipal(d->tope, dom);
+    nodoDominio* actual = d->tablaDoms[posDom];
+    while(actual && actual->dominio != dom) actual = actual->sig;
 
-    if (actual){
-        pos = fhashPrincipal(actual -> tope, path);
-        nodoPath* pathActual = actual -> tablaPath [pos];
-        nodoPath* anterior = NULL;
+    if(!actual) return;
 
-        while (pathActual && pathActual ->path != path) {
-            anterior = pathActual;
-            pathActual = pathActual ->sig;
-        }
+    int posPath = fhashPrincipal(actual->tope, path);
+    nodoPath* pathActual = actual->tablaPath[posPath];
+    nodoPath* prevPath = NULL;
 
-        if (pathActual){
-            if (pathActual -> sig) pathActual -> sig -> ant = pathActual -> ant;
-            if (pathActual -> ant) pathActual -> ant -> sig = pathActual -> sig;
-            else actual -> primero = pathActual -> sig;
-            pathActual -> sig = NULL;
-            pathActual -> ant = NULL;
-            if(anterior) anterior -> sigPath = pathActual -> sigPath;
-            else actual ->tablaPath[pos] = pathActual -> sigPath;
-            pathActual-> sigPath = NULL;
-            delete pathActual;
-            d ->cantElementos--;
-            actual->cantElementos--;
-        }
+    while(pathActual && pathActual->path != path){
+        prevPath = pathActual;
+        pathActual = pathActual->sigPath;
     }
+    if(!pathActual) return;
+    if(prevPath) prevPath->sigPath = pathActual->sigPath;
+    else actual->tablaPath[posPath] = pathActual->sigPath;
+    if(actual->primero == pathActual) actual->primero = pathActual->sig;
+    else {
+        nodoPath* iter = actual->primero;
+        while(iter->sig != pathActual) iter = iter->sig;
+        iter->sig = pathActual->sig;
+    }
+    delete pathActual;
+    d->cantElementos--;
+    actual->cantElementos--;
 }
 
 bool CONTAINS (Tabla d, string dom, string path){
@@ -257,8 +239,30 @@ int SIZE (Tabla d){
     return d -> cantElementos;
 }
 
-void CLEAR (Tabla &d){
-    
+void CLEAR(Tabla &d){
+    for (int i = 0; i < d->tope; i++) {
+        nodoDominio* actual = d->tablaDoms[i];
+        while(actual) {
+            nodoDominio* aux = actual;
+            actual = actual->sig;
+            for(int j = 0; j < aux->tope; j++){
+                nodoPath* pathActual = aux->tablaPath[j];
+                while(pathActual){
+                    nodoPath* tmp = pathActual;
+                    pathActual = pathActual->sigPath; 
+                    delete tmp;
+                }
+            }
+            delete[] aux->tablaPath;
+            aux->primero = NULL; 
+            delete aux;
+        }
+        d->tablaDoms[i] = NULL;
+    }
+    delete[] d->tablaDoms;
+    d->tablaDoms = NULL;
+    d->cantElementos = 0;
+    d->tope = 0;
 }
 
 string getTitulo(nodoPath* n){
